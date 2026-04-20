@@ -35,3 +35,25 @@ function updateCountDisplay(el) {
     el.textContent = "";
   }
 }
+
+let restSeconds = 20;
+
+async function initForcedRest() {
+  const countdownEl = document.getElementById("countdown");
+  const exitBtn = document.getElementById("btn-exit");
+
+  if (window.__TAURI__) {
+    await window.__TAURI__.event.listen("timer-tick", (event) => {
+      const remaining = event.payload.remaining;
+      if (remaining > 0 && remaining <= restSeconds + 1) {
+        countdownEl.textContent = remaining;
+      }
+    });
+  }
+
+  exitBtn.addEventListener("click", async () => {
+    if (window.__TAURI__) {
+      await window.__TAURI__.core.invoke("exit_forced_rest");
+    }
+  });
+}
