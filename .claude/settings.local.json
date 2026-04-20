@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git init *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(cargo check *)",
+      "Bash(where cargo *)"
     ]
   }
 }
