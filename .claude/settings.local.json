@@ -25,7 +25,24 @@
       "Bash(cmd /c \"where cargo\")",
       "Read(//c/Users/hzm/.cargo/bin/**)",
       "Read(//mnt/c/Users/hzm/.cargo/**)",
-      "Bash(~/.cargo/bin/cargo.exe check *)"
+      "Bash(~/.cargo/bin/cargo.exe check *)",
+      "Bash(cargo tauri *)",
+      "Read(//c/.cargo/**)",
+      "Read(//mnt/c/.cargo/**)",
+      "Bash(~/.cargo/bin/cargo tauri *)",
+      "Bash(npm install *)",
+      "Bash(npx tauri *)",
+      "Bash(~/.cargo/bin/cargo install *)",
+      "Bash(export CARGO_HOME=\"$HOME/.cargo\")",
+      "Bash(export PATH=\"$CARGO_HOME/bin:$PATH\")",
+      "Bash(cargo build *)",
+      "Bash(npm list *)",
+      "Bash(C:/Users/hzm/AppData/Roaming/npm/tauri build *)",
+      "Bash(python3 -c \"from PIL import Image; print\\('PIL available'\\)\")",
+      "Bash(python -c \"from PIL import Image; print\\('PIL available'\\)\")",
+      "Bash(python3 *)",
+      "Bash(python *)",
+      "Bash(taskkill //F //IM eyefoo.exe)"
     ]
   }
 }
