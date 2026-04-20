@@ -6,7 +6,16 @@
       "Bash(python3 -c ' *)",
       "Bash(python -c ' *)",
       "Bash(cargo check *)",
-      "Bash(where cargo *)"
+      "Bash(where cargo *)",
+      "Bash(cd L:/test/eyefoo/src-tauri)",
+      "Bash(/c/Users/hzm/.cargo/bin/cargo.exe check *)",
+      "Bash(/c/Users/hzm/.cargo/bin/rustup.exe default *)",
+      "Bash(where magick *)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(cmd.exe /c \"magick -version\")",
+      "Bash(node *)",
+      "Bash(/c/Users/hzm/.cargo/bin/cargo.exe test *)"
     ]
   }
 }
