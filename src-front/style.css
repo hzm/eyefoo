@@ -1,2 +1,92 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: "Segoe UI", system-ui, sans-serif; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #1f1f1f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.popup {
+  background: #2d2d2d;
+  width: 360px;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.popup-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #a0a0a0;
+  margin-bottom: 24px;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn {
+  min-width: 120px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-primary {
+  background: #60cdff;
+  color: #1f1f1f;
+}
+
+.btn-primary:hover {
+  background: #7dd5ff;
+}
+
+.btn-primary:active {
+  background: #4bb8e6;
+}
+
+.btn-secondary {
+  background: #3d3d3d;
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background: #4a4a4a;
+}
+
+.btn-secondary:active {
+  background: #333333;
+}
+
+.postpone-count {
+  font-size: 12px;
+  color: #a0a0a0;
+  margin-top: 16px;
+  min-height: 16px;
+}

@@ -1,5 +1,37 @@
 <!DOCTYPE html>
-<html>
-<head><link rel="stylesheet" href="style.css"></head>
-<body>Loading...</body>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyeFoo — Break Time</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="popup">
+    <div class="popup-icon">👁</div>
+    <h1>Time for a Break!</h1>
+    <p class="subtitle">Look away from the screen for a moment</p>
+    <div class="buttons">
+      <button id="btn-postpone5" class="btn btn-secondary">Postpone 5 min</button>
+      <button id="btn-postpone8" class="btn btn-primary">Postpone 8 min</button>
+    </div>
+    <p class="postpone-count" id="postpone-count"></p>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      initReminder();
+    });
+    // Auto-trigger forced rest after 20 seconds if no interaction
+    setTimeout(() => {
+      if (window.__TAURI__) {
+        window.__TAURI__.event.emit("forced-rest-triggered", {});
+      }
+    }, 20000);
+    window.addEventListener("beforeunload", (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    });
+  </script>
+</body>
 </html>
