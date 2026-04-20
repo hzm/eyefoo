@@ -65,7 +65,12 @@ impl TimerManager {
 
                     // Check if timer just fired (reached 0)
                     if state.load(Ordering::SeqCst) == 0 {
-                        let _ = app.emit("reminder-triggered", serde_json::json!({}));
+                        let p = postponed.load(Ordering::SeqCst);
+                        if p >= 3 {
+                            let _ = app.emit("forced-rest-triggered", serde_json::json!({}));
+                        } else {
+                            let _ = app.emit("reminder-triggered", serde_json::json!({}));
+                        }
                     }
                 }
             }
