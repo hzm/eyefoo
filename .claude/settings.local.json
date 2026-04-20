@@ -15,7 +15,13 @@
       "Read(//c/Program Files \\(x86\\)/**)",
       "Bash(cmd.exe /c \"magick -version\")",
       "Bash(node *)",
-      "Bash(/c/Users/hzm/.cargo/bin/cargo.exe test *)"
+      "Bash(/c/Users/hzm/.cargo/bin/cargo.exe test *)",
+      "Bash(cmd.exe /c \"where cargo\")",
+      "Bash(cmd.exe /c \"dir C:\\\\\\\\Users\\\\\\\\hzm\\\\\\\\.cargo\\\\\\\\bin\\\\\\\\cargo.exe\")",
+      "Bash(cmd.exe /c \"L:\\\\\\\\test\\\\\\\\eyefoo\\\\\\\\src-tauri\\\\\\\\cargo-check.bat\")",
+      "Bash(powershell.exe *)",
+      "Read(//c/Users/hzm/.cargo/bin//**)",
+      "Read(//c/Users/hzm/.rustup/toolchains//**)"
     ]
   }
 }

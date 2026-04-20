@@ -6,7 +6,7 @@ use std::time::Duration;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter,
+    AppHandle, Emitter, Listener, Manager, WebviewUrl, WebviewWindowBuilder,
 };
 
 #[derive(Clone)]
@@ -112,6 +112,48 @@ pub struct AppState {
     pub manager: TimerManager,
 }
 
+pub fn show_reminder_window(app: &tauri::AppHandle) -> tauri::Result<()> {
+    if let Some(existing) = app.get_webview_window("reminder") {
+        let _ = existing.show();
+        let _ = existing.set_focus();
+        return Ok(());
+    }
+    WebviewWindowBuilder::new(app, "reminder", WebviewUrl::App("index.html".into()))
+        .title("EyeFoo")
+        .inner_size(360.0, 200.0)
+        .resizable(false)
+        .decorations(false)
+        .always_on_top(true)
+        .center()
+        .skip_taskbar(true)
+        .build()?;
+    Ok(())
+}
+
+pub fn show_forced_rest_window(app: &tauri::AppHandle) -> tauri::Result<()> {
+    if let Some(existing) = app.get_webview_window("rest") {
+        let _ = existing.show();
+        let _ = existing.set_focus();
+        return Ok(());
+    }
+    WebviewWindowBuilder::new(app, "rest", WebviewUrl::App("rest.html".into()))
+        .title("EyeFoo — Rest")
+        .inner_size(1920.0, 1080.0)
+        .resizable(false)
+        .decorations(false)
+        .always_on_top(true)
+        .skip_taskbar(true)
+        .fullscreen(true)
+        .build()?;
+    Ok(())
+}
+
+pub fn close_window(app: &tauri::AppHandle, label: &str) {
+    if let Some(window) = app.get_webview_window(label) {
+        let _ = window.hide();
+    }
+}
+
 #[tauri::command]
 fn postpone_5min(app: AppHandle, state: tauri::State<'_, AppState>) {
     state.manager.postpone(5);
@@ -158,6 +200,23 @@ pub fn run() {
             // Start the timer in a background thread
             timer.start_timer(app.handle().clone());
 
+            let app_handle = app.handle().clone();
+            let app_handle2 = app_handle.clone();
+            let app_handle3 = app_handle.clone();
+
+            app.listen("reminder-triggered", move |_| {
+                let _ = show_reminder_window(&app_handle);
+            });
+
+            app.listen("forced-rest-triggered", move |_| {
+                let _ = show_forced_rest_window(&app_handle2);
+            });
+
+            app.listen("window-close", move |_| {
+                close_window(&app_handle3, "reminder");
+                close_window(&app_handle3, "rest");
+            });
+
             let pause_30 = MenuItem::with_id(app, "pause_30", "Pause for 30 Minutes", true, None::<&str>)?;
             let pause_60 = MenuItem::with_id(app, "pause_60", "Pause for 1 Hour", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -168,10 +227,15 @@ pub fn run() {
                 .menu(&menu)
                 .tooltip("EyeFoo — Running")
                 .on_menu_event(|app, event| match event.id.as_ref() {
-                    "pause_30" => println!("pause_30 triggered"),
-                    "pause_60" => println!("pause_60 triggered"),
+                    "pause_30" => {
+                        let state = app.state::<AppState>();
+                        state.manager.pause_for(30);
+                    }
+                    "pause_60" => {
+                        let state = app.state::<AppState>();
+                        state.manager.pause_for(60);
+                    }
                     "quit" => {
-                        println!("quit triggered");
                         app.exit(0);
                     }
                     _ => {}
