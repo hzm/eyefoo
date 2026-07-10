@@ -2,27 +2,29 @@
 
 ## Overview
 
-A minimal Windows eye protection utility that reminds the user to take breaks at 45-minute intervals. Runs silently in the system tray with no main window.
+A minimal Windows eye protection utility that reminds the user to take breaks at 44-minute intervals. Runs silently in the system tray with no main window.
 
 ## Core Behavior
 
 ### Timer Flow
 
-1. App starts → 45-minute countdown begins in background
+1. App starts → 44-minute countdown begins in background
 2. Timer fires → reminder popup appears (centered, non-fullscreen)
 3. User chooses:
    - **Postpone 5 min** — timer resets to 5 minutes, then fires again
    - **Postpone 8 min** — timer resets to 8 minutes, then fires again
-   - **Do nothing** — after ~20 seconds auto-triggers forced rest
+   - **Do nothing** — after 60 seconds auto-triggers forced rest
 4. After **3 postpones** total → forced rest triggers regardless
-5. Forced rest ends → new 45-minute cycle begins
+5. Forced rest ends → new 44-minute cycle begins
 
 ### Pause Feature
 
 - Right-click tray icon → context menu
 - Options: **Pause 30 min** / **Pause 1 hr** / **Quit**
 - Pausing stops all timers; no popups during pause
-- After pause expires, 45-minute cycle resumes from current remaining time (or restart if paused mid-cycle)
+- After pause expires, the current 44-minute cycle resumes from its remaining time.
+- If paused while a reminder is visible, the reminder is dismissed and a fresh cycle starts after the pause.
+- While paused, no reminder countdown or forced-rest transition runs.
 
 ## UI Components
 
@@ -36,28 +38,37 @@ A minimal Windows eye protection utility that reminds the user to take breaks at
 
 - Pause for 30 Minutes
 - Pause for 1 Hour
+- Resume
 - ---
 - Quit
 
 ### Reminder Popup
 
-- **Size**: 360 × 200 px, centered on primary screen
+- **Size**: 360 × 300 px, centered on primary screen
 - **Style**: Win11 — rounded corners, drop shadow, system accent color border
 - **Content**:
   - Title: "Time for a Break!" (large, centered)
-  - Subtitle: "Look away from the screen for 20 seconds"
+  - Subtitle: "适当放松，缓解视疲劳"
   - Two buttons side by side: "Postpone 5 min" | "Postpone 8 min"
-- **Auto-dismiss**: ~20 seconds → forced rest (no manual close button)
+- **Auto-dismiss**: 60 seconds → forced rest (no manual close button)
 - **Behavior**: Always on top, no title bar, click outside does nothing
+- **Notification**: Plays one Windows system alert sound when the reminder appears
+- **Settings**: Tray menu opens a settings window where the reminder sound can be enabled or disabled
+- **Startup**: Settings can enable or disable launch at Windows login for the current user
+- Sound preference is saved in the app's own configuration directory.
 
 ### Forced Rest Screen
 
 - **Fullscreen black** covering all monitors
-- **Center**: large white countdown timer in seconds (e.g., "20")
+- **Center**: large white countdown timer formatted as minutes and seconds
 - **Bottom-right corner**: small "Exit" button (white text, minimal style)
-- **Exit behavior**: exits forced rest mode, program continues running in tray, 45-minute timer restarts fresh
+- **Exit behavior**: exits forced rest mode, program continues running in tray, 44-minute timer restarts fresh
 
 ## Technical Approach
+
+### User Configuration
+
+The defaults remain 44 minutes of work, 3 minutes of forced rest, 60 seconds of reminder waiting, 5/8 minute postpone options, 3 maximum postpones, and a 30-second exit unlock delay. These values can be changed in the settings window and are saved in the app configuration file. Values are clamped to safe ranges, and changes apply from the next cycle.
 
 ### Stack
 

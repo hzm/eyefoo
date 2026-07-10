@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Allow basic core functionality including events",
+  "windows": ["*"],
+  "permissions": [
+    "core:event:default",
+    "core:window:default"
+  ]
+}

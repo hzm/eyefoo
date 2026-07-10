@@ -3,35 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EyeFoo — Break Time</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';">
+  <title>EyeFoo — 休息提醒</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="popup">
     <div class="popup-icon">👁</div>
-    <h1>Time for a Break!</h1>
-    <p class="subtitle">Look away from the screen for a moment</p>
+    <h1>休息一下</h1>
+    <p class="subtitle">适当放松，缓解视疲劳</p>
+    <div class="timer-bar" id="timer-bar">
+      <span id="auto-dismiss">60</span> 秒后自动进入休息
+    </div>
     <div class="buttons">
-      <button id="btn-postpone5" class="btn btn-secondary">Postpone 5 min</button>
-      <button id="btn-postpone8" class="btn btn-primary">Postpone 8 min</button>
+      <button id="btn-postpone5" class="btn btn-secondary">推迟 5 分钟</button>
+      <button id="btn-postpone8" class="btn btn-primary">推迟 8 分钟</button>
     </div>
     <p class="postpone-count" id="postpone-count"></p>
   </div>
-  <script src="script.js"></script>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      initReminder();
-    });
-    // Auto-trigger forced rest after 20 seconds if no interaction
-    setTimeout(() => {
-      if (window.__TAURI__) {
-        window.__TAURI__.event.emit("forced-rest-triggered", {});
-      }
-    }, 20000);
-    window.addEventListener("beforeunload", (e) => {
-      e.preventDefault();
-      e.returnValue = "";
-    });
-  </script>
+  <!-- 使用独立的 reminder.js，不再与 rest 逻辑共用 script.js -->
+  <script src="reminder.js"></script>
 </body>
 </html>

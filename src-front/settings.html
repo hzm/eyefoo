@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+  <title>EyeFoo 设置</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="settings-body">
+  <main class="settings-panel">
+    <h1>EyeFoo 设置</h1>
+    <p class="settings-subtitle">修改后从下一轮工作／休息周期开始生效。</p>
+
+    <section class="settings-form">
+      <label>工作周期（分钟）<input id="work-duration" type="number" min="5" max="180"></label>
+      <label>强制休息（分钟）<input id="rest-duration" type="number" min="1" max="60"></label>
+      <label>提醒等待（秒）<input id="reminder-timeout" type="number" min="10" max="300"></label>
+      <label>推迟 5 分钟按钮实际时长<input id="postpone-5" type="number" min="1" max="60"></label>
+      <label>推迟 8 分钟按钮实际时长<input id="postpone-8" type="number" min="1" max="60"></label>
+      <label>最多推迟次数<input id="max-postpones" type="number" min="0" max="10"></label>
+      <label>退出按钮解锁（秒）<input id="exit-unlock" type="number" min="0" max="3600"></label>
+    </section>
+
+    <label class="setting-row">
+      <span>
+        <strong>提醒声音</strong>
+        <small>提醒弹窗出现时播放一次系统提示音</small>
+      </span>
+      <input id="sound-enabled" type="checkbox">
+    </label>
+
+    <label class="setting-row">
+      <span>
+        <strong>开机启动</strong>
+        <small>登录 Windows 后自动运行 EyeFoo</small>
+      </span>
+      <input id="autostart-enabled" type="checkbox">
+    </label>
+
+    <button id="save-settings" class="settings-save">保存设置</button>
+    <p id="settings-status" class="settings-status" role="status"></p>
+  </main>
+  <script src="settings.js"></script>
+</body>
+</html>

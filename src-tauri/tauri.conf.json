@@ -2,15 +2,18 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "EyeFoo",
   "version": "0.1.0",
-  "identifier": "com.eyefoo.app",
+  "identifier": "com.eyefoo.desktop",
   "build": {
     "frontendDist": "../src-front",
     "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "",
+    "beforeDevCommand": "python -m http.server 1420 --directory ../src-front",
     "beforeBuildCommand": ""
   },
   "app": {
-    "withGlobalTauri": false,
+    "withGlobalTauri": true,
     "windows": []
+  },
+  "bundle": {
+    "icon": ["icons/icon.ico"]
   }
 }

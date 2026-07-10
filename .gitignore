@@ -1,0 +1,25 @@
+# Rust and Tauri build output
+target/
+src-tauri/target/
+target-*/
+src-tauri/target-*/
+
+# Tauri bundle and native build artifacts
+src-tauri/target/release/bundle/
+*.pdb
+
+# Local AI/editor configuration
+.claude/
+.agents/
+.memsearch/
+
+# Local environment and temporary files
+.env
+.env.*
+docs/*-analysis-report.html
+*.log
+*.tmp
+*.temp
+*.swp
+.DS_Store
+Thumbs.db

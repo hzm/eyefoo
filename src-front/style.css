@@ -6,7 +6,7 @@
 
 body {
   font-family: "Segoe UI", system-ui, sans-serif;
-  background: #1f1f1f;
+  background: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,28 +16,44 @@ body {
 .popup {
   background: #2d2d2d;
   width: 360px;
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  padding: 32px 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  padding: 24px 28px 28px;
   text-align: center;
+  position: relative;
 }
 
 .popup-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
+  font-size: 44px;
+  margin-bottom: 8px;
+  line-height: 1;
 }
 
 h1 {
   font-size: 22px;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .subtitle {
   font-size: 14px;
   color: #a0a0a0;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+}
+
+.timer-bar {
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.timer-bar #auto-dismiss {
+  color: #e0a050;
+  font-weight: 600;
 }
 
 .buttons {
@@ -47,15 +63,15 @@ h1 {
 }
 
 .btn {
-  min-width: 120px;
-  padding: 10px 16px;
+  flex: 1;
+  padding: 11px 8px;
   border: none;
   border-radius: 6px;
   font-size: 14px;
   font-family: "Segoe UI", system-ui, sans-serif;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, opacity 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 
 .btn-primary {
@@ -87,23 +103,32 @@ h1 {
 .postpone-count {
   font-size: 12px;
   color: #a0a0a0;
-  margin-top: 16px;
+  margin-top: 14px;
   min-height: 16px;
 }
 
-/* Forced rest screen */
-.rest-screen {
+/* ── Forced rest screen ───────────────────────────────────────────────────── */
+
+/* body class applied only to rest.html */
+.rest-body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   background: #000;
-  width: 100vw;
-  height: 100vh;
+}
+
+.rest-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  z-index: 1;
 }
 
 .countdown {
-  font-size: 200px;
+  font-size: 180px;
   font-weight: 200;
   color: #fff;
   font-family: "Segoe UI", system-ui, sans-serif;
@@ -111,18 +136,153 @@ h1 {
 }
 
 .exit-btn {
-  position: absolute;
-  bottom: 32px;
-  right: 40px;
-  background: transparent;
-  border: none;
-  color: rgba(255,255,255,0.4);
-  font-size: 14px;
+  position: fixed;
+  bottom: 40px;
+  right: 48px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
   font-family: "Segoe UI", system-ui, sans-serif;
   cursor: pointer;
-  padding: 8px 16px;
+  padding: 14px 32px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+  z-index: 2;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.exit-btn[hidden] {
+  display: none;
 }
 
 .exit-btn:hover {
-  color: rgba(255,255,255,0.8);
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+/* ── Settings window ─────────────────────────────────────────────────────── */
+
+.settings-body {
+  min-height: 100vh;
+  padding: 28px;
+  background: #202020;
+  color: #fff;
+  display: block;
+}
+
+.settings-panel {
+  max-width: 364px;
+  margin: 0 auto;
+}
+
+.settings-panel h1 {
+  margin-bottom: 8px;
+}
+
+.settings-subtitle {
+  color: #a0a0a0;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+}
+
+.setting-row span {
+  display: grid;
+  gap: 5px;
+}
+
+.setting-row small {
+  color: #a0a0a0;
+  font-size: 12px;
+}
+
+.setting-row input {
+  width: 20px;
+  height: 20px;
+  accent-color: #60cdff;
+}
+
+.settings-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.settings-form label {
+  display: grid;
+  gap: 6px;
+  color: #bdbdbd;
+  font-size: 12px;
+}
+
+.settings-form input {
+  width: 100%;
+  padding: 8px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  background: #2d2d2d;
+  color: #fff;
+  font: inherit;
+}
+
+.settings-save {
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: #60cdff;
+  color: #1f1f1f;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.settings-save:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.settings-status {
+  min-height: 18px;
+  margin-top: 10px;
+  color: #8ed6a0;
+  font-size: 12px;
+  text-align: center;
+}
+
+.settings-status.error {
+  color: #ff9b9b;
+}
+
+.policy-card {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #bdbdbd;
+  font-size: 13px;
+}
+
+.policy-card div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.policy-card strong {
+  color: #fff;
+  font-weight: 500;
 }

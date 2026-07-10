@@ -3,23 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';">
   <title>EyeFoo — Rest</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="rest-body">
+  <!-- 使用 CSS 类而非内联样式，与 style.css 中的 .rest-screen / .countdown / .exit-btn 对应 -->
   <div class="rest-screen">
-    <div class="countdown" id="countdown">20</div>
-    <button class="exit-btn" id="btn-exit">Exit</button>
+    <div id="countdown" class="countdown"></div>
   </div>
-  <script src="script.js"></script>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      initForcedRest();
-    });
-    window.addEventListener("beforeunload", (e) => {
-      e.preventDefault();
-      e.returnValue = "";
-    });
-  </script>
+  <button id="btn-exit" class="exit-btn" hidden aria-hidden="true">退出休息</button>
+  <!-- 使用独立的 rest.js，不再与 reminder 逻辑共用 script.js -->
+  <script src="rest.js"></script>
 </body>
 </html>
