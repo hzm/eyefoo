@@ -42,6 +42,8 @@
 - 已发布到 GitHub（hzm/eyefoo，MIT License）：清理历史中误提交的 target/ 编译产物（约 1.2GB）后推送 main，并创建 v0.1.0 Release，安装包以固定名 `EyeFoo-Setup.exe` 上传，`releases/latest/download/EyeFoo-Setup.exe` 直链已验证可用。
 - 修复启动时 `reg.exe` 查询开机启动项导致的控制台窗口闪现（`CREATE_NO_WINDOW`）。
 - 设置窗口新增「恢复默认设置」：一键写回默认参数并同步关闭开机启动项（`reset_settings` 命令返回默认值，前端直接回填表单）。
+- 修复引导窗口「知道了」点击无效：capabilities 缺少 `core:window:allow-close` 权限，close 被静默拒绝；并为关闭调用补充错误日志。
+- 修复引导/设置窗口打开时白屏闪烁：创建时设置 `background_color` 与页面底色一致（#202020），与提醒/休息窗口做法对齐。
 
 ## Next
 

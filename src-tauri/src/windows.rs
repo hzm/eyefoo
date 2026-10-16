@@ -160,6 +160,7 @@ pub fn show_welcome_window(app: &AppHandle) -> tauri::Result<()> {
         .always_on_top(false)
         .skip_taskbar(false)
         .center()
+        .background_color(tauri::webview::Color(0x20, 0x20, 0x20, 255))
         .build()?;
     Ok(())
 }
@@ -179,6 +180,7 @@ pub fn show_settings_window(app: &AppHandle) -> tauri::Result<()> {    if let So
         .always_on_top(false)
         .skip_taskbar(false)
         .center()
+        .background_color(tauri::webview::Color(0x20, 0x20, 0x20, 255))
         .build()?;
     Ok(())
 }
