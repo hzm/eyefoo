@@ -21,6 +21,7 @@ use windows::{
 
 pub fn run() {
     if !single_instance::acquire() {
+        single_instance::notify_already_running();
         return;
     }
 
