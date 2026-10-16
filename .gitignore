@@ -16,6 +16,7 @@ src-tauri/target/release/bundle/
 # Local environment and temporary files
 .env
 .env.*
+.tmp/
 docs/*-analysis-report.html
 *.log
 *.tmp
