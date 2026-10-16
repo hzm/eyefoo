@@ -16,6 +16,7 @@ use timer::TimerManager;
 use tray::build_tray;
 use windows::{
     ensure_reminder_window, ensure_rest_windows, show_forced_rest_window, show_reminder_window,
+    show_welcome_window,
 };
 
 pub fn run() {
@@ -31,6 +32,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             postpone_5min,
             postpone_8min,
+            dismiss_reminder,
             exit_forced_rest,
             start_forced_rest,
             pause_30min,
@@ -46,14 +48,20 @@ pub fn run() {
         ])
         .setup(move |app| {
             if let Ok(config_dir) = app.path().app_config_dir() {
+                let settings_path = config_dir.join("settings.json");
+                let first_run = !settings_path.exists();
+                app.state::<AppState>().load_settings(settings_path);
                 app.state::<AppState>()
-                    .load_settings(config_dir.join("settings.json"));
+                    .settings
+                    .lock()
+                    .unwrap()
+                    .autostart_enabled = autostart::is_enabled();
+                if first_run {
+                    // 落盘默认配置（同时作为非首次运行的标记），并弹出首次引导
+                    let _ = app.state::<AppState>().save_settings();
+                    let _ = show_welcome_window(app.handle());
+                }
             }
-            app.state::<AppState>()
-                .settings
-                .lock()
-                .unwrap()
-                .autostart_enabled = autostart::is_enabled();
             timer.reset_cycle();
             timer.start_timer(app.handle().clone());
             let _ = ensure_reminder_window(app.handle());

@@ -28,6 +28,11 @@ A minimal Windows eye protection utility that reminds the user to take breaks at
 
 ## UI Components
 
+### First-Run Welcome
+
+- On the very first launch (no settings file yet), a small welcome window explains that the app lives in the system tray and has no main window, so first-time users don't think "nothing happened" after double-clicking.
+- Dismissed via its "知道了" button or the window close control; default settings are written to disk at the same time so it shows only once.
+
 ### Tray Icon
 
 - System tray only, no taskbar presence
@@ -47,22 +52,25 @@ A minimal Windows eye protection utility that reminds the user to take breaks at
 - **Size**: 360 × 300 px, centered on primary screen
 - **Style**: Win11 — rounded corners, drop shadow, system accent color border
 - **Content**:
-  - Title: "Time for a Break!" (large, centered)
+  - Title: "休息一下" (large, centered)
   - Subtitle: "适当放松，缓解视疲劳"
   - Two buttons side by side: "Postpone 5 min" | "Postpone 8 min"
 - **Auto-dismiss**: 60 seconds → forced rest (no manual close button)
 - **Behavior**: Always on top, no title bar, click outside does nothing
 - **Notification**: Plays one Windows system alert sound when the reminder appears
 - **Settings**: Tray menu opens a settings window where the reminder sound can be enabled or disabled
+- **Dismiss**: A close button hides the reminder popup while its countdown continues; it has the same outcome as taking no action
 - **Startup**: Settings can enable or disable launch at Windows login for the current user
 - Sound preference is saved in the app's own configuration directory.
 
 ### Forced Rest Screen
 
 - **Fullscreen black** covering all monitors
-- **Center**: large white countdown timer formatted as minutes and seconds
+- **Center**: large white countdown timer formatted as minutes and seconds, with a tip line "护眼休息中，请离开屏幕远眺放松" below it
+- **Exit hint**: while the exit button is locked, a small line under the tip shows "N 秒后可在右下角退出"
 - **Bottom-right corner**: small "Exit" button (white text, minimal style)
 - **Exit behavior**: exits forced rest mode, program continues running in tray, 44-minute timer restarts fresh
+- **End**: when the countdown finishes naturally, the screen closes and a system default sound plays (distinct from the reminder alert, respects the sound setting)
 
 ## Technical Approach
 

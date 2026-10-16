@@ -12,6 +12,7 @@
 
   var countdownEl = document.getElementById("countdown");
   var exitBtn = document.getElementById("btn-exit");
+  var exitHintEl = document.getElementById("exit-hint");
   var REST_DURATION_SECS = 180;
   var EXIT_UNLOCK_AFTER_SECS = 30;
 
@@ -25,10 +26,16 @@
     if (countdownEl) {
       countdownEl.textContent = formatTime(Math.max(0, seconds));
     }
+    var elapsed = REST_DURATION_SECS - seconds;
+    var unlocked = elapsed >= EXIT_UNLOCK_AFTER_SECS;
     if (exitBtn) {
-      var unlocked = REST_DURATION_SECS - seconds >= EXIT_UNLOCK_AFTER_SECS;
       exitBtn.hidden = !unlocked;
       exitBtn.setAttribute("aria-hidden", unlocked ? "false" : "true");
+    }
+    if (exitHintEl) {
+      exitHintEl.textContent = unlocked
+        ? ""
+        : EXIT_UNLOCK_AFTER_SECS - elapsed + " 秒后可在右下角退出";
     }
   }
 
@@ -80,10 +87,14 @@
     resync();
   });
 
-  // 倒计时自然结束
-  window.__TAURI__.event.listen("rest-finished", function () {
-    window.__TAURI__.core.invoke("exit_forced_rest").catch(function () {});
+  // 休息结束时清空显示，防止下次弹出时闪出上次的残留数字
+  window.__TAURI__.event.listen("rest-ended", function () {
+    if (countdownEl) countdownEl.textContent = "";
+    if (exitBtn) exitBtn.hidden = true;
+    if (exitHintEl) exitHintEl.textContent = "";
   });
+
+  // 休息自然结束由 Rust 倒计时线程直接收尾（finish_rest），无需前端回调
 
   // ── 页面可见性变化时重新同步（如副屏唤醒、切换回来等）──────────────────────
 

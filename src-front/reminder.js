@@ -18,6 +18,7 @@
 
   var btn5 = document.getElementById("btn-postpone5");
   var btn8 = document.getElementById("btn-postpone8");
+  var closeBtn = document.getElementById("btn-close");
   var countEl = document.getElementById("postpone-count");
   var autoEl = document.getElementById("auto-dismiss");
 
@@ -101,6 +102,10 @@
   btn8.addEventListener("click", function () {
     stopTimer();
     window.__TAURI__.core.invoke("postpone_8min").catch(console.error);
+  });
+
+  closeBtn.addEventListener("click", function () {
+    window.__TAURI__.core.invoke("dismiss_reminder").catch(console.error);
   });
 
 })();

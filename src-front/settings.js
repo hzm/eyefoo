@@ -43,11 +43,13 @@
     settings.autostart_enabled = autostartEnabled.checked;
 
     saveButton.disabled = true;
-    window.__TAURI__.core.invoke("set_settings", { settings: settings })
+    // 先写注册表（唯一可能因外部原因失败的一步），成功后再保存设置文件，
+    // 避免注册表未更新但文件已写入 autostart_enabled 的半成功状态
+    window.__TAURI__.core.invoke("set_autostart_enabled", {
+      enabled: autostartEnabled.checked
+    })
       .then(function () {
-        return window.__TAURI__.core.invoke("set_autostart_enabled", {
-          enabled: autostartEnabled.checked
-        });
+        return window.__TAURI__.core.invoke("set_settings", { settings: settings });
       })
       .then(function () { setStatus("设置已保存"); })
       .catch(function (error) { setStatus(String(error), true); })

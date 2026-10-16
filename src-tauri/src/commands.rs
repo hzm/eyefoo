@@ -4,7 +4,7 @@ use tauri::AppHandle;
 
 use crate::autostart;
 use crate::state::{AppSettings, AppState};
-use crate::windows::{hide_rest_windows, hide_window, show_reminder_window, trigger_forced_rest};
+use crate::windows::{finish_rest, hide_window, show_reminder_window, trigger_forced_rest};
 
 #[tauri::command]
 pub fn postpone_5min(app: AppHandle, state: tauri::State<'_, AppState>) {
@@ -21,21 +21,18 @@ pub fn postpone_8min(app: AppHandle, state: tauri::State<'_, AppState>) {
 }
 
 #[tauri::command]
+pub fn dismiss_reminder(app: AppHandle, _state: tauri::State<'_, AppState>) {
+    hide_window(&app, "reminder");
+}
+
+#[tauri::command]
 pub fn get_rest_remaining(state: tauri::State<'_, AppState>) -> u64 {
     state.rest_remaining.load(Ordering::SeqCst)
 }
 
 #[tauri::command]
-pub fn exit_forced_rest(app: AppHandle, state: tauri::State<'_, AppState>) {
-    if !state.is_showing_rest.load(Ordering::SeqCst) {
-        return;
-    }
-    // 递增 generation，令当前倒计时线程在下次 sleep 结束后立即退出
-    state.rest_generation.fetch_add(1, Ordering::SeqCst);
-    state.rest_countdown_active.store(false, Ordering::SeqCst);
-    state.manager.exit_rest_mode();
-    state.is_showing_rest.store(false, Ordering::SeqCst);
-    hide_rest_windows(&app);
+pub fn exit_forced_rest(app: AppHandle, _state: tauri::State<'_, AppState>) {
+    finish_rest(&app);
 }
 
 #[tauri::command]

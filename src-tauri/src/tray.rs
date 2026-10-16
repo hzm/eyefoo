@@ -7,8 +7,6 @@ use tauri::{
 };
 
 use crate::state::AppState;
-#[cfg(debug_assertions)]
-use crate::windows::show_reminder_window;
 use crate::windows::{hide_window, show_forced_rest_window, show_settings_window};
 
 pub fn build_tray(app: &tauri::App) -> tauri::Result<tauri::tray::TrayIcon> {
@@ -78,7 +76,9 @@ pub fn build_tray(app: &tauri::App) -> tauri::Result<tauri::tray::TrayIcon> {
             }
             #[cfg(debug_assertions)]
             "test_reminder" => {
-                let _ = show_reminder_window(app);
+                // 置零计时，让计时线程走真实的 reminder-triggered 路径弹出提醒，
+                // 而不是直接显示窗口（那样 state != 0，推迟会被拒绝）
+                app.state::<AppState>().manager.force_expire();
             }
             "quit" => {
                 app.exit(0);

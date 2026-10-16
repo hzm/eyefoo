@@ -2,9 +2,61 @@ use std::sync::atomic::Ordering;
 
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
 
+use crate::constants::SUSPEND_THRESHOLD_SECS;
 use crate::state::AppState;
 
 // ─── 窗口创建 / 保活 ──────────────────────────────────────────────────────────
+
+/// 强制激活窗口并带到前台。
+///
+/// 定时弹出的窗口没有前台权限，直接 SetForegroundWindow 会被 Windows 前台锁
+/// 拒绝：窗口显示但不激活，第一次点击只用于激活窗口、被系统吞掉。
+/// AttachThreadInput 把当前线程附加到前台线程的输入队列，是绕过前台锁的
+/// 标准做法（Chromium、AutoHotkey 等均用此模式）。
+#[cfg(windows)]
+pub fn force_foreground(window: &tauri::WebviewWindow) {
+    use std::ffi::c_void;
+    use std::ptr::null_mut;
+
+    #[link(name = "user32")]
+    unsafe extern "system" {
+        fn GetForegroundWindow() -> *mut c_void;
+        fn GetWindowThreadProcessId(hwnd: *mut c_void, pid: *mut u32) -> u32;
+        fn AttachThreadInput(id_attach: u32, id_attach_to: u32, f_attach: i32) -> i32;
+        fn BringWindowToTop(hwnd: *mut c_void) -> i32;
+        fn SetForegroundWindow(hwnd: *mut c_void) -> i32;
+        fn SetActiveWindow(hwnd: *mut c_void) -> *mut c_void;
+    }
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn GetCurrentThreadId() -> u32;
+    }
+
+    let Ok(hwnd) = window.hwnd() else {
+        return;
+    };
+    let hwnd = hwnd.0 as *mut c_void;
+    unsafe {
+        let foreground = GetForegroundWindow();
+        let foreground_thread = GetWindowThreadProcessId(foreground, null_mut());
+        let current_thread = GetCurrentThreadId();
+        let need_attach = foreground_thread != 0 && foreground_thread != current_thread;
+        if need_attach {
+            AttachThreadInput(current_thread, foreground_thread, 1);
+        }
+        BringWindowToTop(hwnd);
+        SetForegroundWindow(hwnd);
+        SetActiveWindow(hwnd);
+        if need_attach {
+            AttachThreadInput(current_thread, foreground_thread, 0);
+        }
+    }
+}
+
+#[cfg(not(windows))]
+pub fn force_foreground(window: &tauri::WebviewWindow) {
+    let _ = window.set_focus();
+}
 
 pub fn ensure_rest_windows(app: &AppHandle) -> tauri::Result<()> {
     let old_labels = app
@@ -21,9 +73,27 @@ pub fn ensure_rest_windows(app: &AppHandle) -> tauri::Result<()> {
             let size = monitor.size();
             let position = monitor.position();
 
+            let mut need_create = true;
             if let Some(window) = app.get_webview_window(&label) {
-                let _ = window.hide();
-            } else {
+                // 显示器位置/尺寸变化（热插拔、缩放调整）时销毁旧窗口重建；
+                // 窗口此时处于隐藏状态，不存在「先关后建」遮挡休息界面的竞态
+                let mismatch = match (window.outer_size(), window.outer_position()) {
+                    (Ok(s), Ok(p)) => {
+                        s.width != size.width
+                            || s.height != size.height
+                            || p.x != position.x
+                            || p.y != position.y
+                    }
+                    _ => true,
+                };
+                if mismatch {
+                    let _ = window.destroy();
+                } else {
+                    let _ = window.hide();
+                    need_create = false;
+                }
+            }
+            if need_create {
                 let win =
                     WebviewWindowBuilder::new(app, &label, WebviewUrl::App("rest.html".into()))
                         .title("EyeFoo Rest")
@@ -41,8 +111,9 @@ pub fn ensure_rest_windows(app: &AppHandle) -> tauri::Result<()> {
             labels.push(label);
         }
 
-        // Close only windows whose monitors disappeared. Existing windows are
-        // reused so a close-and-immediately-recreate race cannot hide rest.
+        // Close only windows whose monitors disappeared. Geometry-matched
+        // windows are reused; rebuilding happens only while hidden, so a
+        // close-and-immediately-recreate race cannot hide rest.
         for label in old_labels {
             if !labels.contains(&label) {
                 if let Some(window) = app.get_webview_window(&label) {
@@ -73,8 +144,27 @@ pub fn ensure_reminder_window(app: &AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
-pub fn show_settings_window(app: &AppHandle) -> tauri::Result<()> {
-    if let Some(window) = app.get_webview_window("settings") {
+/// 首次启动引导：告诉用户应用驻留在托盘，避免「双击后没反应」的误解
+pub fn show_welcome_window(app: &AppHandle) -> tauri::Result<()> {
+    if let Some(window) = app.get_webview_window("welcome") {
+        let _ = window.show();
+        let _ = window.set_focus();
+        return Ok(());
+    }
+    WebviewWindowBuilder::new(app, "welcome", WebviewUrl::App("welcome.html".into()))
+        .title("欢迎使用 EyeFoo")
+        .inner_size(420.0, 300.0)
+        .visible(true)
+        .resizable(false)
+        .decorations(true)
+        .always_on_top(false)
+        .skip_taskbar(false)
+        .center()
+        .build()?;
+    Ok(())
+}
+
+pub fn show_settings_window(app: &AppHandle) -> tauri::Result<()> {    if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();
         let _ = window.set_focus();
         return Ok(());
@@ -129,7 +219,7 @@ pub fn show_reminder_window(app: &AppHandle) -> tauri::Result<()> {
         let postponed = app.state::<AppState>().manager.get_postponed();
         let settings = app.state::<AppState>().settings.lock().unwrap().clone();
         let _ = win.show();
-        let _ = win.set_focus();
+        force_foreground(&win);
         wake_reminder_window(
             &win,
             postponed,
@@ -168,8 +258,14 @@ pub fn show_forced_rest_window(app: &AppHandle) -> tauri::Result<()> {
         if let Some(win) = app.get_webview_window(label) {
             let _ = win.show();
             let _ = win.set_fullscreen(true);
-            let _ = win.set_focus();
             wake_rest_window(&win);
+        }
+    }
+    // 只激活主屏窗口，避免多屏轮流抢焦点；
+    // 用 force_foreground 绕过前台锁，否则「退出休息」的第一次点击会被吞
+    if let Some(first) = labels.first() {
+        if let Some(win) = app.get_webview_window(first) {
+            force_foreground(&win);
         }
     }
 
@@ -186,12 +282,13 @@ pub fn show_forced_rest_window(app: &AppHandle) -> tauri::Result<()> {
 
     std::thread::spawn(move || {
         let mut remaining = rest_duration;
+        let mut last_tick = std::time::Instant::now();
         while remaining > 0 {
             if rest_generation.load(Ordering::SeqCst) != my_gen {
                 return; // 被新一代线程取代，退出
             }
             if !countdown_active.load(Ordering::SeqCst) {
-                return; // 被 exit_forced_rest 主动停止
+                return; // 被 finish_rest 主动停止
             }
             std::thread::sleep(std::time::Duration::from_secs(1));
             // sleep 后再次确认，避免退出后仍写入状态
@@ -201,13 +298,29 @@ pub fn show_forced_rest_window(app: &AppHandle) -> tauri::Result<()> {
             if !countdown_active.load(Ordering::SeqCst) {
                 return;
             }
-            remaining -= 1;
+            let now = std::time::Instant::now();
+            let elapsed = now.duration_since(last_tick);
+            last_tick = now;
+            // 系统休眠或进程被长时间挂起的时间不计入休息计时
+            if elapsed <= std::time::Duration::from_secs(SUSPEND_THRESHOLD_SECS) {
+                remaining = remaining.saturating_sub(elapsed.as_secs().max(1));
+            }
             rest_remaining.store(remaining, Ordering::SeqCst);
             let _ = app_emit.emit("rest-tick", serde_json::json!({ "remaining": remaining }));
         }
-        // 只有当前代线程才能触发 rest-finished
+        // 只有当前代线程才能结束休息；由 Rust 侧直接收尾，
+        // 不再依赖前端收到 rest-finished 事件后回调
         if remaining == 0 && rest_generation.load(Ordering::SeqCst) == my_gen {
-            let _ = app_emit.emit("rest-finished", ());
+            if app_emit
+                .state::<AppState>()
+                .settings
+                .lock()
+                .unwrap()
+                .sound_enabled
+            {
+                crate::notify::rest_end_sound();
+            }
+            finish_rest(&app_emit);
         }
     });
 
@@ -226,6 +339,23 @@ pub fn hide_rest_windows(app: &AppHandle) {
             let _ = win.hide();
         }
     }
+}
+
+/// 结束强制休息：停止倒计时、重置工作周期、隐藏休息窗口。
+/// 自然结束（倒计时线程）与手动退出（exit_forced_rest）共用，
+/// is_showing_rest 的原子交换保证重复调用幂等。
+pub fn finish_rest(app: &AppHandle) {
+    let state = app.state::<AppState>();
+    if !state.is_showing_rest.swap(false, Ordering::SeqCst) {
+        return;
+    }
+    // 递增 generation，令当前倒计时线程在下次 sleep 结束后立即退出
+    state.rest_generation.fetch_add(1, Ordering::SeqCst);
+    state.rest_countdown_active.store(false, Ordering::SeqCst);
+    state.manager.exit_rest_mode();
+    hide_rest_windows(app);
+    // 通知页面清空倒计时显示，避免下次休息时闪出上次的残留数字
+    let _ = app.emit("rest-ended", ());
 }
 
 pub fn hide_window(app: &AppHandle, label: &str) {

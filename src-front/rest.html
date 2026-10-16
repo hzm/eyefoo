@@ -10,7 +10,11 @@
 <body class="rest-body">
   <!-- 使用 CSS 类而非内联样式，与 style.css 中的 .rest-screen / .countdown / .exit-btn 对应 -->
   <div class="rest-screen">
-    <div id="countdown" class="countdown"></div>
+    <div class="rest-content">
+      <div id="countdown" class="countdown"></div>
+      <div class="rest-tip">护眼休息中，请离开屏幕远眺放松</div>
+      <div id="exit-hint" class="exit-hint"></div>
+    </div>
   </div>
   <button id="btn-exit" class="exit-btn" hidden aria-hidden="true">退出休息</button>
   <!-- 使用独立的 rest.js，不再与 reminder 逻辑共用 script.js -->

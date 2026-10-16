@@ -10,3 +10,6 @@ pub const MAX_POSTPONES: u64 = 3;
 /// 提醒弹窗倒计时自动触发强制休息的秒数（仅用于文档，实际计时逻辑在 reminder.js）
 #[allow(dead_code)]
 pub const REMINDER_AUTO_DISMISS_SECS: u64 = 60;
+
+/// 单次 tick 间隔超过该秒数视为系统休眠或进程被长时间挂起，这段时间不计入计时
+pub const SUSPEND_THRESHOLD_SECS: u64 = 10;
