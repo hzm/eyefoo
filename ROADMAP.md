@@ -41,6 +41,7 @@
 - NSIS 中文安装包：`webviewInstallMode: downloadBootstrapper`（缺 WebView2 时安装过程自动联网下载），`build-release.bat` 固化 `--bundles nsis` 参数。
 - 已发布到 GitHub（hzm/eyefoo，MIT License）：清理历史中误提交的 target/ 编译产物（约 1.2GB）后推送 main，并创建 v0.1.0 Release，安装包以固定名 `EyeFoo-Setup.exe` 上传，`releases/latest/download/EyeFoo-Setup.exe` 直链已验证可用。
 - 修复启动时 `reg.exe` 查询开机启动项导致的控制台窗口闪现（`CREATE_NO_WINDOW`）。
+- 设置窗口新增「恢复默认设置」：一键写回默认参数并同步关闭开机启动项（`reset_settings` 命令返回默认值，前端直接回填表单）。
 
 ## Next
 

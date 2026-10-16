@@ -44,6 +44,7 @@ pub fn run() {
             get_autostart_enabled,
             set_autostart_enabled,
             get_settings,
+            reset_settings,
             set_settings,
         ])
         .setup(move |app| {

@@ -172,7 +172,7 @@ pub fn show_settings_window(app: &AppHandle) -> tauri::Result<()> {    if let So
 
     WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
         .title("EyeFoo 设置")
-        .inner_size(460.0, 620.0)
+        .inner_size(460.0, 670.0)
         .visible(true)
         .resizable(false)
         .decorations(true)

@@ -13,6 +13,7 @@
   var soundEnabled = document.getElementById("sound-enabled");
   var autostartEnabled = document.getElementById("autostart-enabled");
   var saveButton = document.getElementById("save-settings");
+  var resetButton = document.getElementById("reset-settings");
   var status = document.getElementById("settings-status");
 
   function setStatus(message, isError) {
@@ -20,19 +21,32 @@
     status.className = "settings-status" + (isError ? " error" : "");
   }
 
+  function fillForm(settings) {
+    Object.keys(fields).forEach(function (key) {
+      fields[key].value = settings[key];
+    });
+    soundEnabled.checked = settings.sound_enabled;
+    autostartEnabled.checked = settings.autostart_enabled;
+  }
+
   function readNumber(input) {
     return Number.parseInt(input.value, 10);
   }
 
   window.__TAURI__.core.invoke("get_settings")
-    .then(function (settings) {
-      Object.keys(fields).forEach(function (key) {
-        fields[key].value = settings[key];
-      });
-      soundEnabled.checked = settings.sound_enabled;
-      autostartEnabled.checked = settings.autostart_enabled;
-    })
+    .then(fillForm)
     .catch(function (error) { setStatus(String(error), true); });
+
+  resetButton.addEventListener("click", function () {
+    resetButton.disabled = true;
+    window.__TAURI__.core.invoke("reset_settings")
+      .then(function (settings) {
+        fillForm(settings);
+        setStatus("已恢复默认设置");
+      })
+      .catch(function (error) { setStatus(String(error), true); })
+      .finally(function () { resetButton.disabled = false; });
+  });
 
   saveButton.addEventListener("click", function () {
     var settings = {};

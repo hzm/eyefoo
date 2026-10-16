@@ -89,6 +89,18 @@ pub fn get_settings(state: tauri::State<'_, AppState>) -> AppSettings {
     state.settings.lock().unwrap().clone()
 }
 
+/// 恢复默认设置：写入默认值并保存，同时关闭注册表里的开机启动项，保持两者一致
+#[tauri::command]
+pub fn reset_settings(state: tauri::State<'_, AppState>) -> Result<AppSettings, String> {
+    let defaults = AppSettings::default().normalize();
+    *state.settings.lock().unwrap() = defaults.clone();
+    state.save_settings().map_err(|error| error.to_string())?;
+    if let Err(error) = autostart::set_enabled(false) {
+        eprintln!("failed to disable autostart on reset: {error}");
+    }
+    Ok(defaults)
+}
+
 #[tauri::command]
 pub fn set_settings(
     state: tauri::State<'_, AppState>,

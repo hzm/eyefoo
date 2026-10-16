@@ -294,6 +294,28 @@ h1 {
   cursor: wait;
 }
 
+.settings-reset {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  background: transparent;
+  color: #bdbdbd;
+  cursor: pointer;
+  font: inherit;
+}
+
+.settings-reset:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.settings-reset:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .settings-status {
   min-height: 18px;
   margin-top: 10px;
