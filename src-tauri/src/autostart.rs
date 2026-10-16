@@ -1,10 +1,16 @@
 const RUN_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Run";
 const VALUE_NAME: &str = "EyeFoo";
 
+/// 从 GUI 程序拉起 reg.exe 这类控制台进程时抑制控制台窗口闪现
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
+
 #[cfg(windows)]
 pub fn is_enabled() -> bool {
+    use std::os::windows::process::CommandExt;
     std::process::Command::new("reg.exe")
         .args(["query", RUN_KEY, "/v", VALUE_NAME])
+        .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map(|output| output.status.success())
         .unwrap_or(false)
@@ -38,8 +44,10 @@ fn run_reg<'a, I>(args: I) -> Result<(), String>
 where
     I: IntoIterator<Item = &'a str>,
 {
+    use std::os::windows::process::CommandExt;
     let output = std::process::Command::new("reg.exe")
         .args(args)
+        .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map_err(|error| error.to_string())?;
     if output.status.success() {
