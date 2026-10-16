@@ -39,6 +39,7 @@
 - SPEC 与实际中文界面文案同步（提醒标题、休息提示语、首次引导）。
 - 新增面向小白用户的 `README.md`：下载直链、SmartScreen 提示处理、系统要求（Win10/11 64 位）、使用与卸载说明。
 - NSIS 中文安装包：`webviewInstallMode: downloadBootstrapper`（缺 WebView2 时安装过程自动联网下载），`build-release.bat` 固化 `--bundles nsis` 参数。
+- 已发布到 GitHub（hzm/eyefoo，MIT License）：清理历史中误提交的 target/ 编译产物（约 1.2GB）后推送 main，并创建 v0.1.0 Release，安装包以固定名 `EyeFoo-Setup.exe` 上传，`releases/latest/download/EyeFoo-Setup.exe` 直链已验证可用。
 
 ## Next
 
